@@ -1,0 +1,50 @@
+# Escrow Smart Contract
+
+# Events
+event Deposit(address indexed sender, uint value)
+event Refund(address indexed sender, uint value)
+event Release(address indexed sender, address indexed receiver, uint value)
+
+# Variables
+address public owner
+address public escrow
+address public seller
+address public buyer
+uint public amount
+bool public locked
+
+# Modifiers
+modifier onlyOwner { require(msg.sender == owner); _; }
+modifier onlyEscrow { require(msg.sender == escrow); _; }
+
+# Constructor
+def __init__():
+    owner = msg.sender
+
+# Deposit
+@onlyOwner
+def setEscrow(address _escrow):
+    escrow = _escrow
+
+@onlyEscrow
+def deposit(address _seller, address _buyer, uint _amount):
+    require(!locked)
+    seller = _seller
+    buyer = _buyer
+    amount = _amount
+    locked = true
+    emit Deposit(seller, amount)
+
+# Refund
+@onlyEscrow
+def refund():
+    require(locked)
+    locked = false
+    emit Refund(seller, amount)
+
+# Release
+@onlyEscrow
+def release():
+    require(locked)
+    locked = false
+    emit Release(seller, buyer, amount)
